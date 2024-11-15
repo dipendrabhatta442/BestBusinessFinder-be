@@ -9,7 +9,11 @@ import authMiddleware from './middlewares/authMiddleware';
 dotenv.config();
 
 const app: Application = express();
-app.use(cors());
+app.use(cors({
+    origin: '*',  // Accept all origins
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],  // Allow these methods
+    allowedHeaders: ['Content-Type', 'X-Api-Key', 'x-api-key','Authorization'],  // Accept specific headers (optional)
+  }));
 app.use(express.json());
 connectDB();
 // Use the middleware for all routes that require API key validation=
