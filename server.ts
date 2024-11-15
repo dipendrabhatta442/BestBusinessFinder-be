@@ -17,7 +17,7 @@ app.use(cors({
 app.use(express.json());
 connectDB();
 // Use the middleware for all routes that require API key validation=
-app.use(authMiddleware);
+// app.use(authMiddleware);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/business', businessRoutes);
