@@ -20,6 +20,8 @@ const unAuthorizedErrorResponse = (res: Response, message?: string) => {
 
 const authMiddleware: RequestHandler = (req: Request, res: Response, next: NextFunction): void => {
     try {
+        console.log("x-api-key",req.headers['x-api-key'])
+        console.log("headers",req.headers)
         // Retrieve x-api-key header
         const apiKeyHeader = req.headers['x-api-key'] as string;
         if (!apiKeyHeader) {
