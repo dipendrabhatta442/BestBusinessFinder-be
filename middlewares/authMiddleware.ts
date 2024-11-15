@@ -23,7 +23,8 @@ const authMiddleware: RequestHandler = (req: Request, res: Response, next: NextF
         console.log("x-api-key",req.headers['x-api-key'])
         console.log("headers",req.headers)
         // Retrieve x-api-key header
-        const apiKeyHeader = req.headers['x-api-key'] as string;
+        let apiKeyHeader = req.headers['x-api-key'] as string;
+        if(req.headers['X-Api-Key']) apiKeyHeader = req.headers['X-Api-Key']
         if (!apiKeyHeader) {
             res.status(401).json({ message: 'Unauthorized: x-api-key header missing' });
             return;
