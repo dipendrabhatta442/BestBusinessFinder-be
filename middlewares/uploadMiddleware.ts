@@ -2,15 +2,16 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { Request } from 'express';
+import BusinessUser from '../models/BusinessUser';
 
 // Configure storage
 const storage = multer.diskStorage({
-    destination: (req: Request, file, cb) => {
-        const userId = req.decoded?.userId;  // Assuming JWT middleware adds `userId` to `req.decoded`
-        const businessName = req.body.businessName || 'default-business'; // Get the business name from the request body
+    destination: async (req: Request, file, cb) => {
+        const businessName = req.body.name || 'default-business'; // Get the business name from the request body
+        // const userId = req.decoded?.userId;  // Assuming JWT middleware adds `userId` to `req.decoded`
 
         // Create a folder name using userId and business name
-        const folderName = `${userId}_${businessName}`;
+        const folderName = `${businessName?.split(' ').join('-')}`;
         const uploadPath = path.join(__dirname, '../uploads', folderName);
 
         // Create the directory if it doesn’t exist
@@ -19,7 +20,7 @@ const storage = multer.diskStorage({
         cb(null, uploadPath);
     },
     filename: (req, file, cb) => {
-        cb(null, `${Date.now()}-${file.originalname}`);
+        cb(null, `${Date.now()}-${file.originalname?.split(' ').join('-')}`);
     },
 });
 

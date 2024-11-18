@@ -7,12 +7,22 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { name, email, password, confirmPassword } = req.body;
-        if (password !== confirmPassword) throw new Error("Password doesn't match")
+
+        const file = req.file;
+        if (!file) {
+            res.status(400).json({ message: 'No image file uploaded' });
+        }
+        const { name, email, password, category, location, description, contactNumber } = req.body;
+        // if (password !== confirmPassword) throw new Error("Password doesn't match")
         const user: IBusinessUser = new BusinessUser({
             name,
             email,
             password,
+            category,
+            location,
+            description,
+            contactNumber,
+            profileImage: file ? `/uploads/${name?.split(' ').join('-')}/${file?.filename}` : undefined,
         });
         await user.save();
         const currentUser = await BusinessUser.findOne({ email });
@@ -25,19 +35,21 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 };
 export const updateProfile = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { profileImage, name, email, phone } = req.body;
-        const user: IBusinessUser = new BusinessUser({
-            profileImage, name, email, phone
-        });
-        await user.updateOne(
+        const { name, profileImage, category, description } = req.body;
+        const file = req.file;
+        const newProfile = {
+            name, category, description,
+            profileImage: req.file ? `/uploads/${name?.split(' ').join('-')}/${file?.filename}` : profileImage
+        }
+        await BusinessUser.updateOne(
             {
-                _id: req.decoded?.userId,
-                profileImage, name, email, phone
+                ...newProfile,
+                _id: req.decoded?.userId
             }
         );
-        res.status(201).json({ message: 'Business registered successfully' });
+        res.status(201).json({ message: 'Business Updated successfully' });
     } catch (error) {
-        res.status(400).json({ message: 'Registration failed', error });
+        res.status(400).json({ message: 'Business Updated failed', error });
     }
 };
 export const login = async (req: Request, res: Response): Promise<void> => {
@@ -79,5 +91,18 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
         res.status(200).json({ message: 'Logout successful' });
     } catch (error) {
         res.status(500).json({ message: 'Failed to logout', error });
+    }
+};
+
+export const profile = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const userId = req?.decoded?.userId;
+        if (!userId) res.status(400).json({ message: 'UserId is not found in jwt' })
+        const business = await BusinessUser.findById(
+            userId
+        );
+        res.status(201).json({ message: 'Business registered successfully', data: business });
+    } catch (error) {
+        res.status(400).json({ message: 'Registration failed', error });
     }
 };

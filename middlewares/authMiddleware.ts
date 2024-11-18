@@ -21,10 +21,9 @@ const unAuthorizedErrorResponse = (res: Response, message?: string) => {
 const authMiddleware: RequestHandler = (req: Request, res: Response, next: NextFunction): void => {
     try {
         // Retrieve x-api-key header
-        let apiKeyHeader = req.headers['x-api-key'] as string;
-        if(req.headers['X-Api-Key']) apiKeyHeader = req.headers['X-Api-Key']
+        const apiKeyHeader = req.headers['x-api-key'] as string;
         if (!apiKeyHeader) {
-            res.status(401).json({ message: 'Unauthorized: x-api-key header missing',apiKeyHeader: apiKeyHeader ? apiKeyHeader : 'no pai key'});
+            res.status(401).json({ message: 'Unauthorized: x-api-key header missing' });
             return;
         }
         // parse the x-api-key
