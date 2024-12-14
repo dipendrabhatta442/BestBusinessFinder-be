@@ -2,10 +2,11 @@ import express from 'express';
 import { register, login, logout, updateProfile, profile, Adminlogin } from '../controllers/authController';
 import jwtMiddleware from '../middlewares/jwtMiddleware';
 import { upload } from '../middlewares/uploadMiddleware';
+import { uploadForRegister } from '../middlewares/uploadMiddlewareForRegister';
 
 const router = express.Router();
 
-router.post('/register', upload.single('profileImage'), register);
+router.post('/register', uploadForRegister.single('profileImage'), register);
 router.post('/login', login);
 router.post('/admin/login', Adminlogin);
 router.post('/logout', jwtMiddleware, logout);
