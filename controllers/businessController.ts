@@ -25,11 +25,6 @@ export const addReview = async (req: Request, res: Response): Promise<void> => {
         }
 
         const { review, name, rating } = req.body;
-        // const userId = req.decoded?.userId;
-        // if (!userId) {
-        //     res.status(401).json({ message: 'Unauthorized: User not authenticated' });
-        //     return;
-        // }
 
         business.reviews.push({ id: randomUUID(), createdDate: new Date(), name, review, reply: '', rating: Number(rating) });
         business.rating = rating;
@@ -55,11 +50,7 @@ export const addReviewReplay = async (req: Request, res: Response): Promise<void
             res.status(400).json({ message: 'Invalid reply content' });
             return;
         }
-        // const userId = req.decoded?.userId;
-        // if (!userId) {
-        //     res.status(401).json({ message: 'Unauthorized: User not authenticated' });
-        //     return;
-        // }
+
         const review = business.reviews.find(review => review.id === reviewId);
         if (!review) {
             res.status(404).json({ message: 'Review not found' });
@@ -106,6 +97,24 @@ export const getBusinessDetails = async (req: Request, res: Response): Promise<v
             return;
         }
         res.json({ message: "Successfully retrive business", data: business });
+    } catch (error) {
+        res.status(400).json({ message: 'Failed to retrieve business', error });
+    }
+};
+// Get Business Details with Reviews and Offerings
+export const getBusinessOfferingDetails = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const business = await BusinessUser.findOne({ slug: req?.params.id })
+        if (!business) {
+            res.status(404).json({ message: 'Business not found' });
+            return;
+        }
+        const offering = business?.offerings?.find(item => item.id === req.query.id)
+        if (!offering) {
+            res.status(404).json({ message: 'Offering not found' });
+            return;
+        }
+        res.json({ message: "Successfully retrive Offering", data: offering });
     } catch (error) {
         res.status(400).json({ message: 'Failed to retrieve business', error });
     }

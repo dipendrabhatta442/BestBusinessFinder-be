@@ -1,14 +1,20 @@
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import BusinessUser from '../models/BusinessUser';
 
 // Configure storage
 const storage = multer.diskStorage({
     destination: async (req: Request, file, cb) => {
-        const businessName = req.body.name || 'default-business'; // Get the business name from the request body
-        // const userId = req.decoded?.userId;  // Assuming JWT middleware adds `userId` to `req.decoded`
+        const userId = req?.decoded?.userId;
+        if (!userId) cb(new Error('UserId is not found in jwt or this might be from attakcer'), '')
+        const business = await BusinessUser.findById(
+            userId
+        );
+        if (business === null) cb(new Error('no business not found in database or this might be from attakcer'), '')
+
+        const businessName = business?.name;
 
         // Create a folder name using userId and business name
         const folderName = `${businessName?.split(' ').join('-')}`;

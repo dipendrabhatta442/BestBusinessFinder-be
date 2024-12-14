@@ -1,13 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import BlacklistedToken from '../models/BlacklistedToken';
+import { config } from '../config/environment';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+const JWT_SECRET = config.jwtSecret;
 
 declare global {
     namespace Express {
         interface Request {
-            decoded?: { userId: string };
+            decoded?: { userId: string, role: 'Admin' | 'BusinessUser' };
         }
     }
 }
@@ -30,15 +31,16 @@ const jwtMiddleware = async (req: Request, res: Response, next: NextFunction): P
 
     jwt.verify(token, JWT_SECRET, (err, decoded) => {
         if (err) {
+            console.error("JWT verification failed:", err);
             res.status(403).json({ message: 'Forbidden: Invalid token' });
             return;
         }
 
-        if (typeof decoded === 'object' && decoded !== null && 'id' in decoded) {
-            req.decoded = { userId: (decoded as { id: string }).id };
+
+        if (typeof decoded === 'object' && 'id' in decoded && 'role' in decoded) {
+            req.decoded = { userId: decoded.id, role: decoded.role };
         } else {
             res.status(403).json({ message: 'Forbidden: Token structure invalid' });
-            return;
         }
 
         next();
