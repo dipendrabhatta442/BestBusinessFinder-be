@@ -18,7 +18,7 @@ export const createCampaign = async (req: Request, res: Response): Promise<void>
         const campaign = new Campaign({
             title,
             description,
-            image: file ? file?.path?.split('/backend')[1] : '',
+            image: file ? file?.path?.split('/src')[1] : '',
             tags,
             isPublic: true,
             createdBy: req.decoded?.userId,
